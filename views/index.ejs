@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DB EXPLORER</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <h1>DB EXPLORER</h1>
+    <div class="container form">
+      <div>Create</div>
+      <form action="/entity" method="POST">
+        <div class="entry">
+          <label for="domain">Domain</label>
+          <input type="text" placeholder="Domain" name="domain" />
+        </div>
+        <div class="entry">
+          <label for="cms">CMS</label>
+          <input type="text" placeholder="CMS" name="cms" />
+        </div>
+        <button class="button button-block" type="submit">Create</button>
+      </form>
+    </div>
+
+    <div class="container">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="4"><div>READ Unprocessed - <%=  entity.length %></div></th>
+          </tr>
+          <tr>
+            <th>Domain</th>
+            <th>CMS</th>
+            <th>Crawled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(var i = 0; i < entity.length; i++) { %>
+          <tr>
+            <td><%= entity[i].domain %></td>
+            <td><%= entity[i].cms %></td>
+            <td><%= entity[i].crawled %></td>
+            <td>
+              <button
+                class="button editButton"
+                data-domain="<%=  entity[i].domain %>"
+                data-cms="<%= entity[i].cms %>"
+                data-crawled="<%= entity[i].crawled %>"
+              >
+                Edit
+              </button>
+              <button
+                class="button deleteButton"
+                data-domain="<%=  entity[i].domain %>"
+                data-cms="<%= entity[i].cms %>"
+                data-crawled="<%= entity[i].crawled %>"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    
+    <div class="container form">
+        <div>Update</div>
+            <div class="entry">
+                <label for="olddomain">Old First Name</label>
+                <input type="text" name="olddomain" id="olddomain" readonly="true" />
+            </div>
+            <div class="entry">
+                <label for="oldcms">Old CMS</label>
+                <input type="text" name="oldcms" id="oldcms" readonly="true" />
+            </div>
+            <div class="entry">
+                <label for="newdomain">New First Name</label>
+                <input type="text" name="newdomain" id="newdomain" />
+            </div>
+            <div class="entry">
+                <label for="newcms">New CMS</label>
+                <input type="text" name="newcms" id="newcms" />
+            </div>
+            <button class="button button-block updateButton"">
+                Update
+            </button>
+    </div>
+
+    <script src="/main.js"></script>
+  </body>
+</html>
