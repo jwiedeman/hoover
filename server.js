@@ -44,9 +44,8 @@ app.post('/entity', async (req, res) => {
     const db = client.db('node-demo');
     const collection = db.collection('entity');
     
-    const cursor =  await collection.countDocuments({ domain : req.body.domain});
-    console.log(cursor)
-    if(cursor < 1 && req.body.domain != '' && /google|microsoft|facebook|apple|/.test(req.body.domain)){ 
+    const cursor =  await collection.countDocuments({ domain : req.body.domain });
+    if(cursor < 1){ 
     console.log('POST : Adding ' + req.body.domain)
      collection
       .update({domain : req.body.domain , crawled : false}, {domain : req.body.domain , crawled : false} ,  {upsert:true})

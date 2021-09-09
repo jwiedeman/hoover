@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 let data = []
 var c = new Crawler({
-  maxConnections : 1,
+  maxConnections : 10,
   jQuery: 'cheerio',
   // This will be called for each crawled page
   callback : function (error, res, done) {
@@ -21,12 +21,22 @@ var c = new Crawler({
           console.log(error);
       }else{
         var $ = res.$;
+        try{
           $("[href*='http']").each(function (i, e) { 
             console.log('E-href',$(e).attr('href'))
-            request.post('http://localhost:80/entity', {form:{domain:'http://' + url.parse($(e).attr('href')).hostname }})
-          })
+            request.post({url:'http://localhost:80/entity', form:{domain:'http://' + url.parse($(e).attr('href')).hostname }, function(err,httpResponse,body){ }}).on('error', function(err) {
+              console.error(err)
+            })
+          })} 
+          catch (e) {null}
       }
       done();
+      console.log('Letting mongo breathe')
+      setTimeout(function(){ 
+        
+        processNext()
+       }, 5000);
+
   }
 });
 
@@ -39,6 +49,7 @@ function processNext(){
     collection
       .findOne({crawled : false})
       .then((results) => {
+        console.log('NEXT TARGET >> ',results.domain)
         c.queue(results.domain);
         collection
           .findOneAndUpdate(
@@ -68,7 +79,4 @@ function processNext(){
 }
   
 
-  setInterval(function(){ 
-
-    processNext()
-   }, 2000);
+processNext()
