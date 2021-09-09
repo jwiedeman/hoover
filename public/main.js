@@ -50,3 +50,8 @@ updateBtn.addEventListener('click', (e) => {
       window.location.reload();
     });
 });
+
+
+window.setTimeout(function () {
+  window.location.reload();
+}, 3000);
