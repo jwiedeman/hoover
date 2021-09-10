@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 
 const MongoClient = require('mongodb').MongoClient;
 const dbUrl =
-  'mongodb://localhost:27017/myapp';
+  'mongodb://localhost:27017/localdb';
 
 const app = express();
 
@@ -22,7 +22,7 @@ app.use(express.static('public'));
  *    ROUTES
  * -------------------------------- */
 app.get('/', (req, res) => {
-  MongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, client) => {
+  MongoClient.connect(dbUrl, { connectTimeoutMS : 500, socketTimeoutMS:500,useUnifiedTopology: true }, (err, client) => {
     if (err) return console.error(err);
     const db = client.db('node-demo');
     const collection = db.collection('entity');
@@ -39,31 +39,33 @@ app.get('/', (req, res) => {
 });
 
 app.post('/entity', async (req, res) => {
-  MongoClient.connect(dbUrl, { useUnifiedTopology: true },   async (err, client) => {
+  MongoClient.connect(dbUrl, { connectTimeoutMS : 500, socketTimeoutMS:500,useUnifiedTopology: true },   async (err, client) => {
     if (err) return console.error(err);
     const db = client.db('node-demo');
     const collection = db.collection('entity');
-    
+    //var currentTotal = collection.count()
+    //var leads = collection.find({crawled:false}).count()
+
     const cursor =  await collection.countDocuments({ domain : req.body.domain });
     if(cursor < 1){ 
-    console.log('POST : Adding ' + req.body.domain)
+    console.log( ' POST : Adding ' + req.body.domain)
      collection
-      .update({domain : req.body.domain , crawled : false}, {domain : req.body.domain , crawled : false} ,  {upsert:true})
+      .updateOne({domain : req.body.domain , crawled : false}, {$set: {domain : req.body.domain , crawled : false} },  {upsert:true})
       .then(() => {
-        res.redirect('/');
+       // res.redirect('/');
       })
       .catch(() => {
-        res.redirect('/');
+        //res.redirect('/');
       });
     } else {
-      console.log('Duplicate Entry detected, Abandoning Request' , req.body)
+      //console.log(currentTotal , ' Duplicate Entry detected, Abandoning Request' , req.body)
     }
   });
 });
 
 app.delete('/entity', (req, res) => {
   
-  MongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, client) => {
+  MongoClient.connect(dbUrl, { connectTimeoutMS : 500, socketTimeoutMS:500,useUnifiedTopology: true }, (err, client) => {
     if (err) return console.error(err);
     const db = client.db('node-demo');
     console.log('Delete', req.body)
@@ -80,7 +82,7 @@ app.delete('/entity', (req, res) => {
 });
 
 app.put('/entity', (req, res) => {
-  MongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, client) => {
+  MongoClient.connect(dbUrl, { connectTimeoutMS : 100, socketTimeoutMS:100,maxTimeMS:100,useUnifiedTopology: true }, (err, client) => {
     if (err) return console.error(err);
     const db = client.db('node-demo');
     const collection = db.collection('entity');

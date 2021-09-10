@@ -52,6 +52,3 @@ updateBtn.addEventListener('click', (e) => {
 });
 
 
-window.setTimeout(function () {
-  window.location.reload();
-}, 3000);
