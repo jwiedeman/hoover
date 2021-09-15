@@ -5,8 +5,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const MongoClient = require('mongodb').MongoClient;
-const dbUrl =
-  'mongodb://localhost:27017/localdb';
+const dbUrl = 'mongodb://localhost:27017/localdb';
 
 const app = express();
 
@@ -43,8 +42,8 @@ app.post('/entity', async (req, res) => {
     if (err) return console.error(err);
     const db = client.db('node-demo');
     const collection = db.collection('entity');
-    //var currentTotal = collection.count()
-    //var leads = collection.find({crawled:false}).count()
+    var currentTotal = collection.count()
+    var leads = collection.find({crawled:false}).count()
 
     const cursor =  await collection.countDocuments({ domain : req.body.domain });
     if(cursor < 1){ 

@@ -7,16 +7,26 @@ const request = require('request')
 var Crawler = require("crawler");
 const MongoClient = require('mongodb').MongoClient;
 var throttledQueue = require('throttled-queue');
+const extractDomain = require("extract-domain");
 
 
 const dbUrl = 'mongodb://localhost:27017/localdb';
 
-var throttle = throttledQueue(1, 100);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 process.on('unhandledRejection', function(err) {
-  console.log(err);
+  //console.log('unhandledRejection' , err);
+  // sendInTheCalvary(err);
+});
+ 
+process.on('ESOCKETTIMEDOUT', function(err) {
+  //console.log('ESOCKETTIMEDOUT' , err);
+  // sendInTheCalvary(err);
+});
+process.on('ETIMEDOUT', function(err) {
+  //console.log('ETIMEDOUT' , err);
   // sendInTheCalvary(err);
 });
 
@@ -37,32 +47,47 @@ var c = new Crawler({
   timeout : 1500,
   jQuery: false,
   callback :async function (error, res, done) {
-    var currentTotal =await  collection.count()
       if(error){
-        console.log(error);
       }else{
         try{
-        var $ = cheerio.load(res.body);
+          var startTotal = await collection.count()
+          
+          
+          var $ = cheerio.load(res.body);
         
           var links =[]
           $("[href*='http']").each( function (i, e) {
             addUnique('http://' + url.parse($(e).attr('href')).hostname, links)
           })
-         
-          links.forEach(async element => {
-            
           
-            const cursor = await collection.countDocuments({ domain : element });
+          /*
+          type, website, serer, cdn, etc. 
+          cms
+          sitemap?
+          sitemapPages arr
+          google analytics?
+          google analytics ID arr
+          google ads?
+          Google ads id arr
+          google tag manager?
+          gtm id
+          
+          */
+     
+          links.forEach(async (element , i) => {
+            var parseResult = extractDomain(element);
+           
+            parseResult = 'http://' + parseResult
+            const cursor = await collection.countDocuments({ domain : parseResult  });
             if(cursor < 1){ 
-              
-              console.log( currentTotal,' +  ADDING >> ' + element)
-              currentTotal+=1
-               collection.updateOne({domain : element , crawled : false}, {$set: {domain : element , crawled : false} },  {upsert:true}).catch(() => {
-                  //res.redirect('/');
+              console.log('FOUND    >> ' +startTotal.toLocaleString('en'),  parseResult)
+              collection.updateOne({domain : parseResult }, {$set: {domain : parseResult , crawled : false} },  {upsert:true}).catch(() => {
                 });
-              } 
-          })
+              }
 
+          })
+          
+         // console.log( 'TOTAL    >> ' + startTotal.toLocaleString('en')    )
         } 
         catch (e) { 
           return null 
@@ -79,13 +104,16 @@ var c = new Crawler({
 
 
 
- function processNext (){
-    var currentTotal =  collection.count()
+  function processNext (){
     collection
     .findOne({crawled : false})
-    .then((results) => {
-      console.log(currentTotal ,  ' NEXT TARGET >> ',results.domain)
-        c.queue(results.domain);
+    .then( (results) => {
+      
+        try{
+          c.queue(results.domain)
+        // console.log('CRAWLING >> ' + results.domain)
+        }catch(e){}
+
         collection
           .findOneAndUpdate(
             { _id: results._id },
@@ -97,17 +125,17 @@ var c = new Crawler({
             {
               upsert: true,
             }
-          ).then(() => {
-        res.json('Success');
+          ).then( (
+          ) => {
+        //res.json('Success');
       }).catch(() => {});
 
-      }).then(() => {
-        res.json('Success');
+      }).then( () => {
+
       })
       .catch((error) => {
           return null
       });
- // })
 }
   
 
@@ -237,4 +265,19 @@ function addUnique(data, targetArr) {
       
   }
 }
+*/
+
+
+
+/*
+
+
+forms of businesses
+
+restraunt
+food cart
+restoration
+service
+contracting 
+
 */
