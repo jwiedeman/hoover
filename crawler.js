@@ -5,7 +5,7 @@ var Crawler = require("crawler");
 const MongoClient = require('mongodb').MongoClient;
 const extractDomain = require("extract-domain");
 const dbUrl = 'mongodb://localhost:27017/localdb';
-
+var nodefound =0
 var db 
 var collection 
 MongoClient.connect(dbUrl, { connectTimeoutMS : 1000, socketTimeoutMS:1000,useUnifiedTopology: true },  (err, client) => {
@@ -33,7 +33,6 @@ MongoClient.connect(dbUrl, { connectTimeoutMS : 1000, socketTimeoutMS:1000,useUn
 var _X =0
 var c = new Crawler({
   retries: 0,
-  timeout: 1500,
   jQuery: false,
   callback: async function (error, res, done) {
     if (error || res.statusCode == undefined || typeof (res.body) == undefined) {
@@ -61,7 +60,8 @@ var c = new Crawler({
         parseResult = 'http://' + parseResult
         const cursor = await collection.countDocuments({domain: parseResult});
         if (cursor < 1) {
-          console.log('FOUND    >> ' + (startTotal +=1).toLocaleString('en'), parseResult)
+          nodefound+=1
+          console.log('FOUND    >> ' + (startTotal +=1).toLocaleString('en'),nodefound, parseResult)
           collection.updateOne({
             domain: parseResult
           }, {
