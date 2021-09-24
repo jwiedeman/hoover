@@ -22,6 +22,7 @@
     "mongodb": "^3.7.0",
     "nodemon": "^2.0.12",
     "request": "^2.88.2",
+    "sitemapper": "^3.1.15",
     "throttled-queue": "^1.0.7",
     "url": "^0.11.0"
   }
