@@ -92,6 +92,7 @@ var c = new Crawler({ // Main crawler
 var cdeep = new Crawler({ // deep crawler, does not callback 
   retries: 0,
   maxConnections: 10,
+  timeout:2000, 
   jQuery: false,
   callback: async function (error, res, done) {
     if (error || res.statusCode == undefined || typeof (res.body) == undefined) {
@@ -115,7 +116,7 @@ var cdeep = new Crawler({ // deep crawler, does not callback
             domain: parseResult
           });
           if (cursor < 1) {
-            console.log('DEEPFOUND>> ' + (startTotal += 1).toLocaleString('en'), '/' ,cdeep.queueSize, parseResult)
+            console.log('DEEPFOUND>> ' + (startTotal += 1).toLocaleString('en'), '/' , parseResult , '  FOUND ON >>',JSON.stringify(res.request.href))
             collection.updateOne({
               domain: parseResult
             }, {
@@ -164,7 +165,7 @@ function processNext() {
           upsert: true,
         }).then(() => {
           sitemapper.fetch(results.domain + '/sitemap.xml').then(function(sites) { // Crawl all pages
-            if(sites.sites.length > 0){
+            if(sites.sites.length > 0 && sites.sites.length < 2000){
             //console.log('Sitemap Detected, CDEEP Queueing . . .', sites.sites.length)
             cdeep.queue(sites.sites);
           }
